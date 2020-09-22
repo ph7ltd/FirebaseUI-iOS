@@ -85,7 +85,7 @@ static NSString *const kLinkPlaceholderPattern = @"\\[([^\\]]+)\\]";
              @(_codeField.codeLength)];
     [_phoneNumberButton setTitle:_phoneNumber forState:UIControlStateNormal];
 
-    [_codeField becomeFirstResponder];
+    [_codeField becomeFirstResponderTextFiled];
     [self startResendTimer];
   }
   return self;
@@ -128,7 +128,7 @@ static NSString *const kLinkPlaceholderPattern = @"\\[([^\\]]+)\\]";
   [_codeField clearCodeInput];
   [self startResendTimer];
   [self incrementActivity];
-  [_codeField resignFirstResponder];
+  [_codeField resignFirstResponderTextFiled];
   FIRPhoneAuthProvider *provider = [FIRPhoneAuthProvider providerWithAuth:self.auth];
   [provider verifyPhoneNumber:_phoneNumber
                    UIDelegate:self
@@ -138,13 +138,13 @@ static NSString *const kLinkPlaceholderPattern = @"\\[([^\\]]+)\\]";
     dispatch_block_t completionBlock = ^() {
       [self decrementActivity];
       self->_verificationID = verificationID;
-      [self->_codeField becomeFirstResponder];
+      [self->_codeField becomeFirstResponderTextFiled];
 
       if (error) {
         UIAlertController *alertController = [FUIPhoneAuth alertControllerForError:error
                                                                      actionHandler:^{
                                                [self->_codeField clearCodeInput];
-                                               [self->_codeField becomeFirstResponder];
+                                               [self->_codeField becomeFirstResponderTextFiled];
                                              }];
         [self presentViewController:alertController animated:YES completion:nil];
         return;
@@ -182,7 +182,7 @@ static NSString *const kLinkPlaceholderPattern = @"\\[([^\\]]+)\\]";
     [provider credentialWithVerificationID:_verificationID verificationCode:verificationCode];
 
   [self incrementActivity];
-  [_codeField resignFirstResponder];
+  [_codeField resignFirstResponderTextFiled];
   self.navigationItem.rightBarButtonItem.enabled = NO;
   FUIPhoneAuth *delegate = [self.authUI providerWithID:FIRPhoneAuthProviderID];
   [delegate callbackWithCredential:credential
@@ -198,7 +198,7 @@ static NSString *const kLinkPlaceholderPattern = @"\\[([^\\]]+)\\]";
       UIAlertController *alertController = [FUIPhoneAuth alertControllerForError:error
                                                                    actionHandler:^{
                                              [self->_codeField clearCodeInput];
-                                             [self->_codeField becomeFirstResponder];
+                                             [self->_codeField becomeFirstResponderTextFiled];
                                            }];
       [self presentViewController:alertController animated:YES completion:nil];
     }

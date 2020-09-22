@@ -24,8 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 const CGFloat FUICodeFieldMinInputFieldHeight = 60.0f;
 
 @interface FUICodeField ()
+<UITextFieldDelegate>
 
 @property (nonatomic, retain, readonly) UIView *inputField;
+@property (nonatomic) UITextField *textField;
 
 @property (weak, nonatomic) IBOutlet UILabel *digits;
 
@@ -81,6 +83,19 @@ const CGFloat FUICodeFieldMinInputFieldHeight = 60.0f;
   }
 
   [self addSubview:self.inputField];
+
+  self.textField = [UITextField new];
+  self.textField.frame = CGRectMake(0, 0, 320, 40);
+  self.textField.keyboardType = [self keyboardType];
+  self.textField.delegate = self;
+  self.textField.alpha = 0;
+  if (@available(iOS 12.0, *)) {
+    if ([self.textField respondsToSelector:@selector(setTextContentType:)]) {
+      id<UITextInputTraits> inputField = (id<UITextInputTraits>)self.textField;
+      inputField.textContentType = UITextContentTypeOneTimeCode;
+    }
+  }
+  [self addSubview:self.textField];
 }
 
 - (UIKeyboardType) keyboardType {
@@ -96,7 +111,7 @@ const CGFloat FUICodeFieldMinInputFieldHeight = 60.0f;
 }
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (nullable UIEvent *) event {
-  [self becomeFirstResponder];
+  [self.textField becomeFirstResponder];
 }
 
 - (void)drawRect:(CGRect)rect {
@@ -157,6 +172,14 @@ const CGFloat FUICodeFieldMinInputFieldHeight = 60.0f;
   [self notifyEntryCompletion];
 }
 
+- (void)becomeFirstResponderTextFiled {
+  [self.textField becomeFirstResponder];
+}
+
+- (void)resignFirstResponderTextFiled {
+  [self.textField resignFirstResponder];
+}
+
 - (void)notifyEntryCompletion {
   if (self.codeEntry.length >= self.codeLength) {
     [self.delegate entryIsCompletedWithCode:[self.codeEntry copy]];
@@ -188,6 +211,26 @@ const CGFloat FUICodeFieldMinInputFieldHeight = 60.0f;
 
 - (void)setTextContentType:(_Null_unspecified UITextContentType)textContentType {
   // do nothing
+}
+
+- (BOOL)textField:(UITextField *) textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+
+  if ([string isEqualToString:@""]) {
+    if (self.codeEntry.length > 0) {
+      NSRange theRange = NSMakeRange(self.codeEntry.length-1, 1);
+      [self.codeEntry deleteCharactersInRange:theRange];
+    }
+  } else {
+    if (self.codeEntry.length >= self.codeLength) {
+      return false;
+    }
+    [self.codeEntry appendString:string];
+  }
+
+  [self setNeedsDisplay];
+  [self notifyEntryCompletion];
+
+  return true;
 }
 
 @end

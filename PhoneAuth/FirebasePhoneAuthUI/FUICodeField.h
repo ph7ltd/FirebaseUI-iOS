@@ -42,6 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (null_unspecified, nonatomic, copy) UITextContentType textContentType;
 
 - (void)clearCodeInput;
+- (void)becomeFirstResponderTextFiled;
+- (void)resignFirstResponderTextFiled;
 
 @end
 
